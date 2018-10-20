@@ -28,7 +28,8 @@ mongo.connect((err) => {
           // Insert chat into mongodb course collection
           mongo.getDb().collection('courses').findOneAndUpdate({ id: room }, {
             '$push': { chat: chat }
-          }, { returnOriginal: false }, (err, res) => {
+          }, { returnOriginal: false }, (err) => {
+            if (err) throw err;
             // Send chat back to users in the course room
             io.to(room).emit('chat', chat);
           });
