@@ -1,0 +1,17 @@
+# Editors
+/.vscode/
+
+# Environment Variables
+.env
+
+# Libraries
+/node_modules/
+
+# Resources
+/.res/
+
+# Database
+/.db/
+
+# Debug Logs
+*-debug.log

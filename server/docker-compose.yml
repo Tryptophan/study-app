@@ -1,0 +1,57 @@
+version: "3"
+services:
+
+  # Nodejs API server
+  api:
+    build: .
+    image: server
+    environment:
+      # API app config
+      PORT: 3001
+      # Mongo config
+      MONGO_HOST: mongo
+      MONGO_PORT: 27017
+      MONGO_API_USER: ${MONGO_API_USER}
+      MONGO_API_PASS: ${MONGO_API_PASS}
+      MONGO_API_DB: db
+    volumes:
+      - ./.res:/var/res
+      - ./static:/var/static
+    restart: always
+    ports:
+      - 3001:3001
+    networks:
+      - webnet
+
+  # Load balancer
+  # nginx:
+  #   image: nginx:stable-alpine
+  #   ports:
+  #     - 3001:80
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+  #   networks:
+  #     - webnet
+
+  # Mongodb
+  mongo:
+    image: mongo:3.6.4
+    environment:
+      # Root db user
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASS}
+      # API db and user
+      - MONGO_INITDB_DATABASE=db
+      - MONGO_API_USER=${MONGO_API_USER}
+      - MONGO_API_PASS=${MONGO_API_PASS}
+      # Seed initial super admin (only use username and email to force password reset)
+      - SA_USER=jacobgreenway
+      - SA_EMAIL=jag150430@utdallas.edu
+    volumes:
+      - ./.db:/data/db
+      - ./mongo:/docker-entrypoint-initdb.d
+    networks:
+      - webnet
+
+networks:
+  webnet:
