@@ -5,8 +5,6 @@ import http from 'http';
 import mongo from './mongo';
 import axios from 'axios';
 
-let audioToken = process.env.REV_SPEECH_API;
-
 mongo.connect((err) => {
   if (err) throw err;
 
@@ -103,30 +101,93 @@ mongo.connect((err) => {
   });
 
   // TODO: Log user in using blackboard credentials
-  app.get('/login', (req, res) => {
-    // TODO: Get username and password from request
-    // TODO: Send token back to client for further requests
-    res.status(500);
+  app.post('/login', (req, res) => {
+
+    let token = ''; //GET TOKEN TODO
+
+    axios.get('https://canvas.instructure.com/api/v1/courses?include[]=term', {
+      params: {
+        access_token: token,
+      }
+    }).then((response) => {
+      let data = response.data;
+      
+      let courses = [];
+      let course_ids = [];
+
+      data.forEach((course) => { 
+        courses.push({
+          id: course.id,
+          name: course.name,
+          term: course.term.name
+        });
+        course_ids.push(course.id);
+      });
+
+      courses.forEach((course) => {
+        mongo.getDb().collection('courses').findOneAndUpdate({'id': course.id}, {"$set": {'id': course.id, 'name': course.name, 'term': course.term}}, {upsert: true});
+      });
+
+      axios.get('https://canvas.instructure.com/api/v1/users/self/profile', {
+        params: {
+          access_token: token,
+        }
+      }).then((response) => {
+        let data = response.data;
+
+        let user = {
+          'id': '' + data.id,
+          'name': data.name,
+          'email': data.primary_email,
+          'courses': course_ids
+        };
+
+        mongo.getDb().collection('users').findOneAndUpdate({'id': user.id}, {"$set": {'name': user.name, 'email': user.email, 'courses': user.courses}}, {upsert: true});
+
+        res.json(user);
+      });
+    });
   });
 
   // Get courses for logged in user
   app.get('/courses', (req, res) => {
     // TODO: Get courses from blackboard with token
-    res.json([
-      {
-        id: '123456',
-        name: 'Advanced Algorithms',
-      },
-      {
-        id: '123423y123',
-        name: 'Databases'
-      },
-      {
-        id: 'wqehqweqwe',
-        name: 'Programming Languages'
-      }
-    ]);
+
+    req.
+
+    mongo.getDb().collection('users').findOne({'id': user_id}, (err, response) => {
+      let courses = [];
+
+      Promise.all(
+      response.courses.map((course) => {
+        return new Promise((resolve, reject) => {
+          mongo.getDb().collection('courses').findOne({'id': course}, (err, response) => {
+            if (err) return reject(err);
+            resolve(response);
+          });  
+        });
+      })).then((courses) => {
+        res.json(courses);
+      }).catch(err => {
+        console.log(err);
+        res.sendStatus(500);
+      });
+    });
   });
+  //   res.json([
+  //     {
+  //       id: '123456',
+  //       name: 'Advanced Algorithms',
+  //     },
+  //     {
+  //       id: '123423y123',
+  //       name: 'Databases'
+  //     },
+  //     {
+  //       id: 'wqehqweqwe',
+  //       name: 'Programming Languages'
+  //     }
+  //   ]);
 
   // Listen on port
   server.listen(process.env.PORT, () => {
