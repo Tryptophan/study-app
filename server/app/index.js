@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import socketio from 'socket.io';
 import http from 'http';
 import mongo from './mongo';
+import axios from 'axios';
 
 mongo.connect((err) => {
   if (err) throw err;
@@ -66,20 +67,58 @@ mongo.connect((err) => {
   // Get courses for logged in user
   app.get('/courses', (req, res) => {
     // TODO: Get courses from blackboard with token
-    res.json([
-      {
-        id: '123456',
-        name: 'Advanced Algorithms',
-      },
-      {
-        id: '123423y123',
-        name: 'Databases'
-      },
-      {
-        id: 'wqehqweqwe',
-        name: 'Programming Languages'
+  
+    // let token = req.params.token;
+    let token = '1017~dzmCtrGZPDq7MoBdPdCSwpPakVbhrBSVY89mCj6COARKKltZ8JQOrQzlHfHAP5lk';
+
+    axios.get('https://canvas.instructure.com/api/v1/courses?include[]=term', {
+      params: {
+        access_token: token,
       }
-    ]);
+    }).then((response) => {
+      let data = response.data;
+      
+      let courses = [];
+
+      data.forEach((course) => { 
+        courses.push({
+          id: course.id,
+          name: course.name,
+          term: course.term.name
+        });
+      });
+      
+
+      courses.forEach((course) => {
+        mongo.getDb().collection('courses').findOneAndUpdate({'id': course.id}, {"$set": {'id': course.id, 'name': course.name, 'term': course.term}}, {upsert: true});
+      });
+
+      res.json(courses);
+
+      // data.forEach((course) => {
+      //   mongo.getDb().collection('courses').findOneAndUpdate({'id': course['id']},
+      //     {$set: {'id': course['id']}, $set: {'name': course['name']}, $set: {'term': course['term']['name']}}, {upsert: true});
+
+      // });      
+    }).catch((error) => {
+      console.log(error.data)
+      res.sendStatus(500);
+    });
+
+  //   res.json([
+  //     {
+  //       id: '123456',
+  //       name: 'Advanced Algorithms',
+  //     },
+  //     {
+  //       id: '123423y123',
+  //       name: 'Databases'
+  //     },
+  //     {
+  //       id: 'wqehqweqwe',
+  //       name: 'Programming Languages'
+  //     }
+  //   ]);
   });
 
   // Listen on port
