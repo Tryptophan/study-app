@@ -24,6 +24,11 @@ mongo.connect((err) => {
 
     // Client sent chat message
     socket.on('chat', (chat) => {
+
+      if (!chat.message.length) {
+        return;
+      }
+
       console.log(chat);
 
       // Add timestamp to chat
@@ -43,7 +48,6 @@ mongo.connect((err) => {
         }
       }
     });
-
   });
 
   // Body parser
@@ -55,6 +59,45 @@ mongo.connect((err) => {
     res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, PATCH, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
     next();
+  });
+
+  app.post('/audio', (req, res) => {
+    let token = process.env.REV_SPEECH_API
+    console.log(token);
+    console.log(req.data);
+    axios({
+      method: 'post',
+      url: 'https://api.rev.ai/revspeech/v1beta/jobs',
+      data: req.data,
+      config: {
+        headers: {
+          'Access-Control-Allow-Headers': 'Authorization',
+          'Authorization': 'Bearer $[token]', 'Content-Type': 'multipart/form-data'
+        }
+      }
+    })
+      .then(function (response) {
+        //handle success
+        console.log(response.data);
+      })
+      .catch(function (err) {
+        //handle error
+        console.log(err.message);
+      });
+
+    // req.headers
+    // // Make axios post to jobs enpoint
+    // let headers = {
+    //   'Content-Type': 'multipart/form-data',
+    //   'Authorization': 'Bearer ' + audioToken
+    // };
+    // req.headers = { ...req.headers, ...headers };
+    // axios.post(req)
+    //   .then(() => {
+    //     res.sendStatus(200);
+    //   }).catch(() => {
+    //     res.sendStatus(500);
+    //   });
   });
 
   // TODO: Log user in using blackboard credentials

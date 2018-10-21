@@ -14,6 +14,7 @@ services:
       MONGO_API_USER: ${MONGO_API_USER}
       MONGO_API_PASS: ${MONGO_API_PASS}
       MONGO_API_DB: db
+      REV_SPEECH_API: ${REV_SPEECH_API}
     volumes:
       - ./.res:/var/res
     restart: always

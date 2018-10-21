@@ -1,4 +1,4 @@
 import io from 'socket.io-client';
-const socket = io('http://10.34.22.68:3001');
+const socket = io(process.env.REACT_APP_API_SERVER);
 
 export default socket;

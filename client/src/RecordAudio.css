@@ -1,0 +1,18 @@
+.RecordAudio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.RecordAudio div {
+  height: 100px;
+  width: 100px;
+  font-size: 50px;
+  background-color: red;
+  color: white;
+  border-radius: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
