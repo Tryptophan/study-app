@@ -6,8 +6,11 @@ import {
   TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
-  FlatList
+  FlatList,
+  Keyboard
 } from 'react-native';
+
+// import AudioRecord from 'react-native-audio-record';
 
 import Header from '../Header';
 
@@ -67,6 +70,9 @@ export default class ChatScreen extends React.Component {
   render() {
     let { state } = this.props.navigation;
     console.log('typing', this.state.typing);
+    if (this.input) {
+      console.log('selected', this.input.selectionState);
+    }
     return (
       <View style={styles.container}>
         <Header title={state.params.courseName} />
@@ -77,8 +83,9 @@ export default class ChatScreen extends React.Component {
         <KeyboardAvoidingView behavior="padding">
           <View style={styles.footer}>
             <TextInput
-              onFocus={() => { this.setState({ typing: true }) }}
-              onBlur={() => { this.setState({ typing: false }) }}
+              ref={(el) => { this.input = el }}
+              onFocus={() => { this.setState({ typing: true }); }}
+              onBlur={() => { this.setState({ typing: false }); }}
               value={this.state.input}
               style={styles.input}
               underlineColorAndroid="transparent"
@@ -94,6 +101,22 @@ export default class ChatScreen extends React.Component {
       </View>
     );
   }
+
+  componentDidMount() {
+    Keyboard.addListener('keyboardDidHide', this.keyboardDidHide);
+  }
+
+  componentWillUnmount() {
+    Keyboard.removeListener('keyboardDidHide', this.keyboardDidHide);
+  }
+
+  keyboardDidHide = () => {
+    console.log('back press');
+    if (this.input.isFocused) {
+      console.log('blur');
+      this.input.blur();
+    }
+  };
 }
 
 const styles = StyleSheet.create({
