@@ -16,7 +16,6 @@ services:
       MONGO_API_DB: db
     volumes:
       - ./.res:/var/res
-      - ./static:/var/static
     restart: always
     ports:
       - 3001:3001

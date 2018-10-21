@@ -15,6 +15,12 @@ mongo.connect((err) => {
   // Client has connected to socket server
   io.on('connection', (socket) => {
 
+    // Client joins chat room
+    socket.on('join', (room) => {
+      console.log('join', room);
+      socket.join(room);
+    });
+
     // Client sent chat message
     socket.on('chat', (chat) => {
       console.log(chat);

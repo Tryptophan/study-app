@@ -6,11 +6,12 @@ import {
   TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
-  FlatList,
-  Image
+  FlatList
 } from 'react-native';
 
 import Header from '../Header';
+
+import socket from '../socket';
 
 export default class ChatScreen extends React.Component {
   static navigationOptions = {
@@ -25,30 +26,37 @@ export default class ChatScreen extends React.Component {
   };
   state = {
     typing: '',
-    messages: []
+    chats: []
   };
 
-  // sendMessage = async () => {
-  //   // read message from component state
-  //   const message = this.state.typing;
+  constructor(props) {
+    super(props);
 
-  //   // send message to our channel, with sender name
-  //   await send({
-  //     message
-  //   });
+    let { state } = this.props.navigation;
+    socket.emit('join', state.params.courseId);
+    socket.on('chat', (chat) => {
+      chat.key = chat.timestamp + '';
+      this.setState({
+        chats: this.state.chats.concat(chat)
+      });
+    });
+  }
 
-  //   // set the component state (clears text input)
-  //   this.setState({
-  //     typing: ''
-  //   });
-  // };
+  sendMessage = () => {
+    // read message from component state
+    let message = this.state.typing;
+
+    socket.emit('chat', { message: message });
+
+    this.setState({
+      typing: ''
+    });
+  };
 
   renderItem({ item }) {
     return (
       <View style={styles.row}>
-        <Image style={styles.avatar} source={{ uri: item.avatar }} />
         <View style={styles.rowText}>
-          <Text style={styles.sender}>{item.sender}</Text>
           <Text style={styles.message}>{item.message}</Text>
         </View>
       </View>
@@ -61,9 +69,8 @@ export default class ChatScreen extends React.Component {
       <View style={styles.container}>
         <Header title={state.params.courseName} />
         <FlatList
-          data={this.state.messages}
+          data={this.state.chats}
           renderItem={this.renderItem}
-          inverted
         />
         <KeyboardAvoidingView behavior="padding">
           <View style={styles.footer}>
