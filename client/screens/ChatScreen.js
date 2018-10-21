@@ -25,7 +25,8 @@ export default class ChatScreen extends React.Component {
     },
   };
   state = {
-    typing: '',
+    input: '',
+    typing: false,
     chats: []
   };
 
@@ -44,12 +45,12 @@ export default class ChatScreen extends React.Component {
 
   sendMessage = () => {
     // read message from component state
-    let message = this.state.typing;
+    let message = this.state.input;
 
     socket.emit('chat', { message: message });
 
     this.setState({
-      typing: ''
+      input: ''
     });
   };
 
@@ -65,6 +66,7 @@ export default class ChatScreen extends React.Component {
 
   render() {
     let { state } = this.props.navigation;
+    console.log('typing', this.state.typing);
     return (
       <View style={styles.container}>
         <Header title={state.params.courseName} />
@@ -75,16 +77,19 @@ export default class ChatScreen extends React.Component {
         <KeyboardAvoidingView behavior="padding">
           <View style={styles.footer}>
             <TextInput
-              value={this.state.typing}
+              onFocus={() => { this.setState({ typing: true }) }}
+              onBlur={() => { this.setState({ typing: false }) }}
+              value={this.state.input}
               style={styles.input}
               underlineColorAndroid="transparent"
               placeholder="Send Message..."
-              onChangeText={text => this.setState({ typing: text })}
+              onChangeText={text => this.setState({ input: text })}
             />
             <TouchableOpacity onPress={this.sendMessage}>
               <Text style={styles.send}>Send</Text>
             </TouchableOpacity>
           </View>
+          {this.state.typing ? <View style={{ height: 80 }} /> : null}
         </KeyboardAvoidingView>
       </View>
     );
