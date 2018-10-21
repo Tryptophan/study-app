@@ -1,0 +1,16 @@
+.Courses {
+    min-width: 20%;
+    padding: 40px;
+  }
+  
+.Courses div{
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    height: 6vh;
+    background-color: black;
+    color: white;
+    padding: 10px;
+  }
