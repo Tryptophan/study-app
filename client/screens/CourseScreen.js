@@ -23,7 +23,7 @@ export default class CourseScreen extends React.Component {
       <ScrollView style={styles.container}>
         <TouchableOpacity
           onPress={() =>
-            navigate('Chat', { courseID: '4348' })}>
+            navigate('Chat', { courseName: 'Algorithms', courseID: '4348' })}>
           <Text style={styles.button}>Advanced Algorithms</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -36,6 +36,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 15,
     backgroundColor: 'pink',
+    padding: 20
   },
   button: {
     color: 'white',
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'column',
     justifyContent: 'center',
-    borderRadius: 100
+    borderRadius: 20
   }
 
 });

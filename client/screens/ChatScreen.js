@@ -6,19 +6,11 @@ import {
   TextInput,
   TouchableOpacity,
   KeyboardAvoidingView,
-  StatusBar,
   FlatList,
   Image
 } from 'react-native';
 
-import { send, subscribe } from 'react-native-training-chat-server';
 import Header from '../Header';
-
-const NAME = '@realDonaldTrump';
-const CHANNEL = 'Random';
-const AVATAR =
-  'https://pbs.twimg.com/profile_images/874276197357596672/kUuht00m_400x400.jpg';
-
 
 export default class ChatScreen extends React.Component {
   static navigationOptions = {
@@ -36,29 +28,20 @@ export default class ChatScreen extends React.Component {
     messages: []
   };
 
-  componentWillMount() {
-    subscribe(CHANNEL, messages => {
-      this.setState({ messages });
-    });
-  }
+  // sendMessage = async () => {
+  //   // read message from component state
+  //   const message = this.state.typing;
 
-  sendMessage = async () => {
-    // read message from component state
-    const message = this.state.typing;
+  //   // send message to our channel, with sender name
+  //   await send({
+  //     message
+  //   });
 
-    // send message to our channel, with sender name
-    await send({
-      channel: CHANNEL,
-      sender: NAME,
-      avatar: AVATAR,
-      message
-    });
-
-    // set the component state (clears text input)
-    this.setState({
-      typing: ''
-    });
-  };
+  //   // set the component state (clears text input)
+  //   this.setState({
+  //     typing: ''
+  //   });
+  // };
 
   renderItem({ item }) {
     return (
@@ -73,9 +56,11 @@ export default class ChatScreen extends React.Component {
   }
 
   render() {
+    let { state } = this.props.navigation;
+    console.log(this.props.navigation);
     return (
       <View style={styles.container}>
-        <Header title={CHANNEL} />
+        <Header title={state.params.courseName} />
         <FlatList
           data={this.state.messages}
           renderItem={this.renderItem}
