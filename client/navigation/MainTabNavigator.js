@@ -1,18 +1,34 @@
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
 
 import TabBarIcon from '../components/TabBarIcon';
-import HomeScreen from '../screens/HomeScreen';
+import ChatScreen from '../screens/ChatScreen';
 import LinksScreen from '../screens/LinksScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import CourseScreen from '../screens/CourseScreen';
 
-const HomeStack = createStackNavigator({
-  Home: HomeScreen,
+const ChatStack = createStackNavigator({
+  Course: CourseScreen,
+  Chat: ChatScreen,
 });
 
-HomeStack.navigationOptions = {
-  tabBarLabel: 'Home',
+ChatStack.navigationOptions = {
+  tabBarLabel: 'Courses',
+  tabBarIcon: ({ focused }) => (
+    <TabBarIcon
+      focused={focused}
+      name={
+        Platform.OS === 'ios'
+          ? `ios-information-circle${focused ? '' : '-outline'}`
+          : 'md-information-circle'
+      }
+    />
+  ),
+};
+
+ChatStack.navigationOptions = {
+  tabBarLabel: 'Chat',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
@@ -54,7 +70,7 @@ SettingsStack.navigationOptions = {
 };
 
 export default createBottomTabNavigator({
-  HomeStack,
+  ChatStack,
   LinksStack,
   SettingsStack,
 });

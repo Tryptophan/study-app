@@ -4,6 +4,17 @@ import { ExpoConfigView } from '@expo/samples';
 export default class SettingsScreen extends React.Component {
   static navigationOptions = {
     title: 'app.json',
+    headerStyle: {
+      backgroundColor: 'black',
+    },
+    headerTintColor: '#fff',
+    headerTitleStyle: {
+      fontWeight: 'bold',
+    },
+  };
+  state = {
+    typing: '',
+    messages: []
   };
 
   render() {
