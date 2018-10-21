@@ -8,8 +8,7 @@ import './App.css';
 
 import Courses from './Courses';
 import Chat from './Chat';
-
-import axios from 'axios';
+import RecordAudio from './RecordAudio';
 
 class App extends Component {
 
@@ -17,8 +16,9 @@ class App extends Component {
     return (
       <div className='App'>
         <Switch>
-          <Route exact path='/' component={Courses.js} />
+          <Route exact path='/' component={Courses} />
           <Route path='/chat/:courseId' component={Chat} />
+          <Route path='/recordAudio/:courseId' component={RecordAudio} />
         </Switch>
       </div>
     );

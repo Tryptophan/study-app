@@ -48,6 +48,12 @@ class Chat extends Component {
     socket.emit('join', courseId);
   }
 
+  componentWillUnmount() {
+    // Leave chat room
+    let { courseId } = this.props.match.params;
+    socket.emit('leave', courseId);
+  }
+
   componentDidUpdate() {
     this.scroll.scrollToBottom();
   }
