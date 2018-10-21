@@ -58,9 +58,9 @@ mongo.connect((err) => {
   });
 
   // TODO: Log user in using blackboard credentials
-  app.get('/login', (req, res) => {
+  app.post('/login', (req, res) => {
 
-    let token = '1017~dzmCtrGZPDq7MoBdPdCSwpPakVbhrBSVY89mCj6COARKKltZ8JQOrQzlHfHAP5lk';
+    let token = ''; //GET TOKEN TODO
 
     axios.get('https://canvas.instructure.com/api/v1/courses?include[]=term', {
       params: {
@@ -93,7 +93,7 @@ mongo.connect((err) => {
         let data = response.data;
 
         let user = {
-          'id': data.id,
+          'id': '' + data.id,
           'name': data.name,
           'email': data.primary_email,
           'courses': course_ids
@@ -110,16 +110,26 @@ mongo.connect((err) => {
   app.get('/courses', (req, res) => {
     // TODO: Get courses from blackboard with token
 
-    let user_id = '10170000004188496';
+    req.
 
     mongo.getDb().collection('users').findOne({'id': user_id}, (err, response) => {
-      console.log(response);
+      let courses = [];
+
+      Promise.all(
+      response.courses.map((course) => {
+        return new Promise((resolve, reject) => {
+          mongo.getDb().collection('courses').findOne({'id': course}, (err, response) => {
+            if (err) return reject(err);
+            resolve(response);
+          });  
+        });
+      })).then((courses) => {
+        res.json(courses);
+      }).catch(err => {
+        console.log(err);
+        res.sendStatus(500);
+      });
     });
-
-
-
-    res.json();
- 
   });
   //   res.json([
   //     {
