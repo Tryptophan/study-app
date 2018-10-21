@@ -59,16 +59,8 @@ mongo.connect((err) => {
 
   // TODO: Log user in using blackboard credentials
   app.get('/login', (req, res) => {
-    // TODO: Get username and password from request
-    // TODO: Send token back to client for further requests
-    res.status(500);
-  });
 
-  // Get courses for logged in user
-  app.get('/courses', (req, res) => {
-    // TODO: Get courses from blackboard with token
-  
-    let token = req.params.token;
+    let token = '1017~dzmCtrGZPDq7MoBdPdCSwpPakVbhrBSVY89mCj6COARKKltZ8JQOrQzlHfHAP5lk';
 
     axios.get('https://canvas.instructure.com/api/v1/courses?include[]=term', {
       params: {
@@ -78,6 +70,7 @@ mongo.connect((err) => {
       let data = response.data;
       
       let courses = [];
+      let course_ids = [];
 
       data.forEach((course) => { 
         courses.push({
@@ -85,21 +78,49 @@ mongo.connect((err) => {
           name: course.name,
           term: course.term.name
         });
+        course_ids.push(course.id);
       });
-      
 
       courses.forEach((course) => {
         mongo.getDb().collection('courses').findOneAndUpdate({'id': course.id}, {"$set": {'id': course.id, 'name': course.name, 'term': course.term}}, {upsert: true});
       });
 
-      res.json(courses);
+      axios.get('https://canvas.instructure.com/api/v1/users/self/profile', {
+        params: {
+          access_token: token,
+        }
+      }).then((response) => {
+        let data = response.data;
 
- 
-    }).catch((error) => {
-      console.log(error.data)
-      res.sendStatus(500);
+        let user = {
+          'id': data.id,
+          'name': data.name,
+          'email': data.primary_email,
+          'courses': course_ids
+        };
+
+        mongo.getDb().collection('users').findOneAndUpdate({'id': user.id}, {"$set": {'name': user.name, 'email': user.email, 'courses': user.courses}}, {upsert: true});
+
+        res.json(user);
+      });
+    });
+  });
+
+  // Get courses for logged in user
+  app.get('/courses', (req, res) => {
+    // TODO: Get courses from blackboard with token
+
+    let user_id = '10170000004188496';
+
+    mongo.getDb().collection('users').findOne({'id': user_id}, (err, response) => {
+      console.log(response);
     });
 
+
+
+    res.json();
+ 
+  });
   //   res.json([
   //     {
   //       id: '123456',
@@ -114,7 +135,6 @@ mongo.connect((err) => {
   //       name: 'Programming Languages'
   //     }
   //   ]);
-  });
 
   // Listen on port
   server.listen(process.env.PORT, () => {
