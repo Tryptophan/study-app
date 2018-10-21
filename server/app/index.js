@@ -68,8 +68,7 @@ mongo.connect((err) => {
   app.get('/courses', (req, res) => {
     // TODO: Get courses from blackboard with token
   
-    // let token = req.params.token;
-    let token = '1017~dzmCtrGZPDq7MoBdPdCSwpPakVbhrBSVY89mCj6COARKKltZ8JQOrQzlHfHAP5lk';
+    let token = req.params.token;
 
     axios.get('https://canvas.instructure.com/api/v1/courses?include[]=term', {
       params: {
@@ -95,11 +94,7 @@ mongo.connect((err) => {
 
       res.json(courses);
 
-      // data.forEach((course) => {
-      //   mongo.getDb().collection('courses').findOneAndUpdate({'id': course['id']},
-      //     {$set: {'id': course['id']}, $set: {'name': course['name']}, $set: {'term': course['term']['name']}}, {upsert: true});
-
-      // });      
+ 
     }).catch((error) => {
       console.log(error.data)
       res.sendStatus(500);
