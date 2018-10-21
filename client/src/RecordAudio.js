@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import axios from 'axios';
+import socket from './socket';
 
-import './RecordAudio.css'
+import './RecordAudio.css';
 
 export default class RecordAudio extends Component {
 
@@ -10,6 +12,8 @@ export default class RecordAudio extends Component {
     this.state = {
       recording: false
     };
+
+    this.recordedData = [];
   }
 
   render() {
@@ -31,6 +35,7 @@ export default class RecordAudio extends Component {
         this.recorder.ondataavailable = (event) => {
           if (event.data.size) {
             console.log(event.data);
+            this.recordedData.push(event.data);
           }
         }
 
@@ -43,6 +48,27 @@ export default class RecordAudio extends Component {
       this.stream = null;
       this.recorder.stop();
       this.recorder = null;
+
+      let b = new Blob(this.recordedData);
+      let formData = new FormData();
+      formData.set("media", b);
+      // Post blob to audio endpoint
+      let token = process.env.REACT_APP_REV_SPEECH_API
+      axios({
+        method: 'post',
+        url: 'http://localhost:3001/audio',
+        data: formData,
+        config: { headers: {'Authorization': 'Bearer ' + token, 'Content-Type': 'multipart/form-data'}}
+        })
+        .then(function (response) {
+            //handle success
+            console.log(response.data);
+        })
+        .catch(function (err) {
+            //handle error
+            console.log(err);
+        });
+      this.recordedData = [];
     }
 
     this.setState({
